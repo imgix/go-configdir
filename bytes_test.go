@@ -136,7 +136,7 @@ func makeToml(s string) string {
 	return s
 }
 
-func Example_DirectoryUpdates() {
+func ExampleDirectoryUpdates() {
 	logger = log.New(os.Stderr, "[dircfg]",
 		log.Ldate|log.Ltime|log.Lshortfile,
 	)

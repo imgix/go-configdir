@@ -1,9 +1,10 @@
 /*
 Package configdir monitors a config directory for a supplied file suffix. Channel updates
-return bytes.Buffer containing all matching files concatenated together. Updates return
+return bytes.Buffer containing all matching files concatenated together.
+
+Updates return
 only if the update contains a unique byte array from previous runs by calculating md5 checksums.
 */
-
 package configdir
 
 import (
@@ -18,6 +19,9 @@ import (
 	"strings"
 )
 
+//Printer interface just to make a passable Logger
+//
+//
 type Printer interface {
 	Print(...interface{})
 	Printf(string, ...interface{})
