@@ -1,6 +1,6 @@
 # go-configdir: channel upates for config directories
-.. image:: https://godoc.org/github.com/imgix/go-confidir?status.svg 
-	:target: http://godoc.org/github.com/imgix/go-configdir
+
+[![GODOC](https://godoc.org/github.com/imgix/go-confidir?status.svg)](http://godoc.org/github.com/imgix/go-configdir)
 
 receive channel-based updates as when directory contents are modified.
 
