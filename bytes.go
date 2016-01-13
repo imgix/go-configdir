@@ -69,9 +69,9 @@ func DirectoryUpdates(dir, suffix string, p Printer) (chan []byte, error) {
 	return dirBytesCh, nil
 }
 
-//DirectoryUpdatesF similar to DirectoryUpdates caller's closure on updates
+//DirectoryUpdatesF similar to DirectoryUpdates but instead feeds daata to caller's closure on updates
 //
-//more info packed into the callback: directory bytes, checksum bytes, andy errors encountered
+//closure is called with directory bytes, checksum bytes, and any error
 func DirectoryUpdatesF(dir, suffix string, userCb func([]byte, []byte, error)) error {
 
 	watcher, err := fsnotify.NewWatcher()
