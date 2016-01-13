@@ -1,0 +1,13 @@
+python/circus_hooks/hwyman_circus.egg-info/
+python/circus_hooks/build/
+python/circus_hooks/dist/
+painter-prime/streaming.go
+painterstat/streaming.go
+painterstat/response.go
+Godeps/_workspace/pkg
+logs_test
+.vagga
+hwy-fetcher
+.fuse_hidden*
+*.swp
+*.pyc
