@@ -1,4 +1,4 @@
-package dirnotify
+package configdir
 
 import (
 	"bytes"
@@ -84,7 +84,8 @@ func TestBytesFromDir(t *testing.T) {
 
 }
 
-func TestDirectoryBytesUpdates(t *testing.T) {
+//
+func TestDirectoryUpdates(t *testing.T) {
 	d, err := ioutil.TempDir("", "")
 
 	if err != nil {
@@ -94,7 +95,7 @@ func TestDirectoryBytesUpdates(t *testing.T) {
 	defer cleanupDir(d)
 	writeManyFiles(t, d, "toml", 20, []byte("initial"))
 
-	chBytes, err := DirectoryBytesUpdates(d, "toml", nil)
+	chBytes, err := DirectoryUpdates(d, "toml", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -130,4 +131,23 @@ func TestDirectoryBytesUpdates(t *testing.T) {
 
 	}
 
+}
+func makeToml(s string) string {
+	return s
+}
+
+func Example_DirectoryUpdates() {
+	logger = log.New(os.Stderr, "[dircfg]",
+		log.Ldate|log.Ltime|log.Lshortfile,
+	)
+
+	chBytes, err := DirectoryUpdates("/etc/server.d", "toml", logger)
+	if err != nil {
+		panic(err)
+	}
+	var buf *bytes.Buffer
+	buf = <-chBytes
+
+	// dummy config parser func
+	makeToml(buf.String())
 }

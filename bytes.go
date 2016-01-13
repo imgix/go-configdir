@@ -1,4 +1,10 @@
-package dirnotify
+/*
+Package configdir monitors a config directory for a supplied file suffix. Channel updates
+return bytes.Buffer containing all matching files concatenated together. Updates return
+only if the update contains a unique byte array from previous runs by calculating md5 checksums.
+*/
+
+package configdir
 
 import (
 	"gopkg.in/fsnotify.v1"
@@ -20,7 +26,10 @@ type Printer interface {
 
 var logger Printer
 
-func DirectoryBytesUpdates(dir, suffix string, p Printer) (chan *bytes.Buffer, error) {
+//DirectoryUpdates starts a goroutine and returns bytes.Buffer receive channel
+//
+//
+func DirectoryUpdates(dir, suffix string, p Printer) (chan *bytes.Buffer, error) {
 	if p != nil {
 		logger = p
 	} else {
