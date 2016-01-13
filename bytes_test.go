@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 )
 
 func init() {
@@ -78,7 +77,7 @@ func TestBytesFromDir(t *testing.T) {
 
 	if !bytes.Equal(wrotemd5.Sum(nil), readmd5) {
 
-		msg := fmt.Sprintf("wrote bytes: \n%s\nread bytes:\n%s", wroteBytes, readBytes.Bytes())
+		msg := fmt.Sprintf("wrote bytes: \n%s\nread bytes:\n%s", wroteBytes, readBytes)
 		t.Error(msg)
 	}
 
@@ -111,12 +110,11 @@ func TestDirectoryUpdates(t *testing.T) {
 		b := <-chBytes
 		bfromDir, _ := bytesFromDir(d, "toml")
 
-		if !bytes.Equal(b.Bytes(), bfromDir.Bytes()) {
+		if !bytes.Equal(b, bfromDir) {
 			t.Errorf("directory update returns inconsistent data")
 		}
 
 	}
-	time.Sleep(1 * time.Second)
 
 	// test no-op
 	fname := filepath.Join(d, fmt.Sprintf("test_%06d.toml", 6))
@@ -145,9 +143,9 @@ func ExampleDirectoryUpdates() {
 	if err != nil {
 		panic(err)
 	}
-	var buf *bytes.Buffer
-	buf = <-chBytes
+	var b []byte
+	b = <-chBytes
 
 	// dummy config parser func
-	makeToml(buf.String())
+	makeToml(string(b))
 }

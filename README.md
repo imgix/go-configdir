@@ -4,7 +4,7 @@
 
 receive channel-based updates as when directory contents are modified.
 
-a go-routine reads all files into a single bytes.Buffer and compares against previous reads to only notify on unique changes.
+a go-routine reads all files into a single bytes slice and compares against previous reads to only notify on unique changes.
 
 this package should be limited to config file updates or other directory contents that fit reasonably in memory.
 
@@ -15,11 +15,11 @@ this package should be limited to config file updates or other directory content
 	if err != nil {
 		panic(err)
 	}
-	var buf *bytes.Buffer
+	var buf []byte
 	// uniquified byte buffers arrive from channel
 	// directory files are concatenated and md5 sum checked
 	buf = <-chBytes
 
 	// dummy config parser func
-	makeToml(buf.String())
+	makeToml(string(buf))
 ```

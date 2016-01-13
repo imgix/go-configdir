@@ -33,7 +33,7 @@ var logger Printer
 //DirectoryUpdates starts a goroutine and returns bytes.Buffer receive channel
 //
 //
-func DirectoryUpdates(dir, suffix string, p Printer) (chan *bytes.Buffer, error) {
+func DirectoryUpdates(dir, suffix string, p Printer) (chan []byte, error) {
 	if p != nil {
 		logger = p
 	} else {
@@ -52,17 +52,46 @@ func DirectoryUpdates(dir, suffix string, p Printer) (chan *bytes.Buffer, error)
 		return nil, err
 	}
 
-	dirBytesCh := make(chan *bytes.Buffer)
+	dirBytesCh := make(chan []byte)
+	userCb := func(cfgB []byte, cfgChecksum []byte, e error) {
+		if err != nil {
+			logger.Print(e)
+		} else {
+			dirBytesCh <- cfgB
+
+		}
+	}
+
+	if err := DirectoryUpdatesF(dir, suffix, userCb); err != nil {
+		return nil, err
+	}
+
+	return dirBytesCh, nil
+}
+
+//DirectoryUpdatesF similar to DirectoryUpdates caller's closure on updates
+//
+//
+func DirectoryUpdatesF(dir, suffix string, userCb func([]byte, []byte, error)) error {
+
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return err
+	}
+	err = watcher.Add(dir)
+	if err != nil {
+		return err
+	}
 
 	go func() {
 		var (
-			dirBytesB          *bytes.Buffer
+			dirBytes           []byte
 			currentMD5, tmpMD5 []byte
 		)
-		dirBytesB, tmpMD5 = bytesFromDir(dir, suffix)
+		dirBytes, tmpMD5 = bytesFromDir(dir, suffix)
 		currentMD5 = make([]byte, len(tmpMD5))
 		copy(currentMD5, tmpMD5)
-		dirBytesCh <- dirBytesB
+		userCb(dirBytes, currentMD5, nil)
 
 		evI := func(o fsnotify.Op) bool {
 			switch {
@@ -82,25 +111,24 @@ func DirectoryUpdates(dir, suffix string, p Printer) (chan *bytes.Buffer, error)
 			case ev := <-watcher.Events:
 
 				if strings.HasSuffix(ev.Name, suffix) && evI(ev.Op) {
-					dirBytesB, tmpMD5 = bytesFromDir(dir, suffix)
+					dirBytes, tmpMD5 = bytesFromDir(dir, suffix)
 				}
 			case err := <-watcher.Errors:
+				userCb(nil, nil, err)
 				logger.Println("error:", err)
 			}
 			if !bytes.Equal(tmpMD5, currentMD5) {
 				copy(currentMD5, tmpMD5)
-				dirBytesCh <- dirBytesB
+				userCb(dirBytes, currentMD5, nil)
 				updates++
-
-			} else {
-				logger.Println("ignoring no-op byte changes")
 			}
 		}
 	}()
-	return dirBytesCh, nil
+
+	return nil
 }
 
-func bytesFromDir(dir, suffix string) (*bytes.Buffer, []byte) {
+func bytesFromDir(dir, suffix string) ([]byte, []byte) {
 
 	var buf *bytes.Buffer = &bytes.Buffer{}
 	md5 := md5.New()
@@ -119,6 +147,6 @@ func bytesFromDir(dir, suffix string) (*bytes.Buffer, []byte) {
 
 		}
 	}
-	return buf, md5.Sum(nil)
+	return buf.Bytes(), md5.Sum(nil)
 
 }
