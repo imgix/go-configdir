@@ -54,10 +54,13 @@ func DirectoryUpdates(dir, suffix string, p Printer) (chan []byte, error) {
 
 	dirBytesCh := make(chan []byte)
 	userCb := func(cfgB []byte, cfgChecksum []byte, e error) {
+		userBytes := make([]byte, len(cfgB))
+		copy(userBytes, cfgB)
+
 		if err != nil {
 			logger.Print(e)
 		} else {
-			dirBytesCh <- cfgB
+			dirBytesCh <- userBytes
 
 		}
 	}
