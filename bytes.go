@@ -102,6 +102,8 @@ func DirectoryUpdatesF(dir, suffix string, userCb func([]byte, []byte, error)) e
 				return true
 			case o&fsnotify.Rename == fsnotify.Rename:
 				return true
+			case o&fsnotify.Create == fsnotify.Create:
+				return true
 
 			}
 
